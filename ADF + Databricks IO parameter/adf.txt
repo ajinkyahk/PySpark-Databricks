@@ -1,0 +1,68 @@
+{
+    "name": "pipeline1",
+    "properties": {
+        "activities": [
+            {
+                "name": "Notebook1",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Users/akon91_outlook.com#ext#@akon91outlook.onmicrosoft.com/Parameter Notebook",
+                    "baseParameters": {
+                        "Filename": {
+                            "value": "@pipeline().parameters.filename",
+                            "type": "Expression"
+                        }
+                    }
+                },
+                "linkedServiceName": {
+                    "referenceName": "AzureDatabricks1",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "File read",
+                "type": "SetVariable",
+                "dependsOn": [
+                    {
+                        "activity": "Notebook1",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "variableName": "filename",
+                    "value": {
+                        "value": "@activity('Notebook1').output.runOutput",
+                        "type": "Expression"
+                    }
+                }
+            }
+        ],
+        "parameters": {
+            "filename": {
+                "type": "string"
+            }
+        },
+        "variables": {
+            "filename": {
+                "type": "String"
+            }
+        },
+        "annotations": []
+    }
+}
