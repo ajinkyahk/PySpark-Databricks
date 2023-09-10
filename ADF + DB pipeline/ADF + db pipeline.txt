@@ -1,0 +1,195 @@
+{
+    "name": "pipeline1",
+    "properties": {
+        "activities": [
+            {
+                "name": "Copy data1",
+                "type": "Copy",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "source": {
+                        "type": "ParquetSource",
+                        "storeSettings": {
+                            "type": "AzureBlobStorageReadSettings",
+                            "recursive": true,
+                            "enablePartitionDiscovery": false
+                        },
+                        "formatSettings": {
+                            "type": "ParquetReadSettings"
+                        }
+                    },
+                    "sink": {
+                        "type": "ParquetSink",
+                        "storeSettings": {
+                            "type": "AzureBlobStorageWriteSettings"
+                        },
+                        "formatSettings": {
+                            "type": "ParquetWriteSettings"
+                        }
+                    },
+                    "enableStaging": false,
+                    "translator": {
+                        "type": "TabularTranslator",
+                        "typeConversion": true,
+                        "typeConversionSettings": {
+                            "allowDataTruncation": true,
+                            "treatBooleanAsNumber": false
+                        }
+                    }
+                },
+                "inputs": [
+                    {
+                        "referenceName": "retail",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "outputretail",
+                        "type": "DatasetReference"
+                    }
+                ]
+            },
+            {
+                "name": "Get latest file",
+                "type": "GetMetadata",
+                "dependsOn": [
+                    {
+                        "activity": "Copy data1",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "dataset": {
+                        "referenceName": "outputretail",
+                        "type": "DatasetReference"
+                    },
+                    "fieldList": [
+                        "itemName",
+                        "lastModified"
+                    ],
+                    "storeSettings": {
+                        "type": "AzureBlobStorageReadSettings",
+                        "modifiedDatetimeStart": "2023-09-09T10:21:00.000Z",
+                        "modifiedDatetimeEnd": {
+                            "value": "utcnow()",
+                            "type": "Expression"
+                        },
+                        "enablePartitionDiscovery": false
+                    },
+                    "formatSettings": {
+                        "type": "ParquetReadSettings"
+                    }
+                }
+            },
+            {
+                "name": "file name",
+                "type": "SetVariable",
+                "dependsOn": [
+                    {
+                        "activity": "Get latest file",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "variableName": "Last Modified",
+                    "value": {
+                        "value": "@activity('Get latest file').output.itemName",
+                        "type": "Expression"
+                    }
+                }
+            },
+            {
+                "name": "Notebook1",
+                "type": "DatabricksNotebook",
+                "dependsOn": [
+                    {
+                        "activity": "file name",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Users/akon91_outlook.com#ext#@akon91outlook.onmicrosoft.com/Parameter Notebook",
+                    "baseParameters": {
+                        "Filename": {
+                            "value": "@variables('Last Modified')",
+                            "type": "Expression"
+                        }
+                    }
+                },
+                "linkedServiceName": {
+                    "referenceName": "AzureDatabricks1",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "File Read",
+                "type": "SetVariable",
+                "dependsOn": [
+                    {
+                        "activity": "Notebook1",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "variableName": "File read",
+                    "value": {
+                        "value": "@activity('Notebook1').output.runOutput",
+                        "type": "Expression"
+                    }
+                }
+            }
+        ],
+        "variables": {
+            "Last Modified": {
+                "type": "String"
+            },
+            "File read": {
+                "type": "String"
+            }
+        },
+        "annotations": []
+    }
+}
