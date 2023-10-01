@@ -1,0 +1,7 @@
+Activity name,Activity status,Error,Activity type,Run start,Duration,Integration runtime,User properties,Activity run ID,Log
+Copy data1,Succeeded,,Copy,"10/1/2023, 3:02:00 PM",15s,AutoResolveIntegrationRuntime (Central India),{},fdbc4969-642a-46f3-ae5d-64d35ae52288,
+Lookup1,Succeeded,,Lookup,"10/1/2023, 3:01:52 PM",8s,AutoResolveIntegrationRuntime (Central India),{},920ced8e-92d7-41e2-b96d-49da496e4d49,
+Copy data1,Succeeded,,Copy,"10/1/2023, 3:01:36 PM",15s,AutoResolveIntegrationRuntime (Central India),{},3fb419ce-c1ef-4910-bb8a-f89919bedb8a,
+Lookup1,Succeeded,,Lookup,"10/1/2023, 3:01:30 PM",5s,AutoResolveIntegrationRuntime (Central India),{},6c99821b-fef0-4191-879e-5403a170d8c7,
+ForEach1,Succeeded,,ForEach,"10/1/2023, 3:01:30 PM",47s,,{},4e727228-e402-4a72-9f9f-dfbe201fa457,
+Get Metadata1,Succeeded,,GetMetadata,"10/1/2023, 3:01:22 PM",8s,AutoResolveIntegrationRuntime (Central India),{},f95f245f-63a2-47d5-b606-5870928f4afa,
